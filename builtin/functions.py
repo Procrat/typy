@@ -2,7 +2,6 @@
 # encoding: utf-8
 
 import types
-from test import BuiltinFunctionType, Num
 
 
 FUNCTIONS = {
@@ -50,7 +49,7 @@ FUNCTIONS = {
     'locals': dict,
     'map': map,
     # 'max' TODO
-    'memoryview': memoryview, # TODO verwacht bytes/bytearray
+    'memoryview': memoryview,  # TODO expects bytes/bytearray
     # 'min' TODO
     # 'next' should be converted to __next__
     'object': object,

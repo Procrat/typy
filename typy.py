@@ -12,38 +12,10 @@ import builtin.types
 from exceptions import (NoSuchName, NoSuchAttribute, WrongBuiltinArgument,
                         WrongArgumentsLength, CheckError, NotYetSupported)
 
-# TODO replace len, getattribute, delattr, setattr, next, iter
-# TODO replace Subscript (slice: ExtSlice, Index, Slice)
-# TODO handle UnaryOp: Not; Compare: Is, IsNot, In, NotIn; BoolOp
-# TODO won't do expr: Ellipsis, GeneratorExp, Lambda, Starred, Tuple, Yield,
-#                     YieldFrom, IfExp
-# TODO won't do stmt: Assert, AugAssign, Global, Nonlocal,
-#                     exceptions (Try + Raise + ExceptHandler)
-#                     comprehensions (ListComp, DictComp, SetComp)
-#                     comparison chaining
-# TODO won't handle: right side ops (x.__radd__ x.__rsub__ x.__rmul__
-# x.__rtruediv__ x.__rmod__ x.__rpow__ x.__rlshift__ x.__rrshift__ x.__ror__
-# x.__rxor__ x.__rand__ x.__rfloordiv__ x.__rdivmod__)
-# TODO classes: Bytes, Dict, List, Num, Set, Str
-# TODO handle expr: Attribute, Call, Name, NameConstant, And, Or
-# TODO handle stmt: Assign, Break, ClassDef, Continue, Expr, For, FunctionDef,
-#                   Delete, If, Import, ImportFrom, Pass, Return, While, With
-# TODO expr_context?: AugLoad, AugStore, Del, Load, Param, Store
-
-# TODO assigns
-# TODO refactor builtin functions
-# TODO classes, methods, class attr's, inheritance
-# TODO recursive functions
-# TODO support for varargs/kwargs/default args etc
-# TODO add line no support
-# TODO check function bodies in se
-# TODO give warning when builtin name gets assigned (typy might fail)
-
 
 class Node:
     def __init__(self, type_map, ast_node):
         self.type_map = type_map
-        # self._ast_node = ast_node
         self._ast_fields = ast_node._fields
 
     def check(self):
@@ -69,9 +41,10 @@ class Node:
 
 class Type(Node):
     def get_attribute(self, name):
+        # TODO make this decent, i.e. without an ugly call to a map
         return builtin.types.ATTRIBUTE_MAP[self.__class__.__name__][name]
         # """Must be overriden in subtype."""
-        raise NotYetSupported('has_attribute of', self)
+        # raise NotYetSupported('has_attribute of', self)
 
     def check_call(self, args):
         # TODO check for existence of __call__ and call check_call on it
@@ -91,6 +64,13 @@ class Module(Node):
 
 class FunctionDef(Type):
     def __init__(self, type_map, ast_node):
+        if (ast_node.args.vararg is not None or
+                len(ast_node.args.kwonlyargs) > 0 or
+                len(ast_node.args.kw_defaults) > 0 or
+                ast_node.args.kwarg is not None or
+                len(ast_node.args.defaults) > 0):
+            raise NotYetSupported('default arguments and keyword arguments')
+
         super().__init__(type_map, ast_node)
         self.name = ast_node.name
         self.params = [arg.arg for arg in ast_node.args.args]
@@ -151,6 +131,11 @@ class Expr(Node):
 
 class Call(Node):
     def __init__(self, type_map, ast_node):
+        if (len(ast_node.keywords) > 0 or
+                ast_node.starargs is not None or
+                ast_node.kwargs is not None):
+            raise NotYetSupported('keyword arguments and star arguments')
+
         super().__init__(type_map, ast_node)
         self.func = convert(type_map, ast_node.func)
         self.args = [convert(type_map, expr) for expr in ast_node.args]
@@ -241,14 +226,15 @@ class ClassDef(Type):
 
     def check_call(self, args):
 
+        # TODO refactor this
         class Instance(Type):
             class_ = self
 
             def __init__(self):
+                print('HIERZO', self.__class__.__qualname__)
                 self.type_map = self.class_.type_map
                 self.namespace = self.class_.namespace + '.' + \
                     self.class_.name + '_' + hex(id(self))[2:]
-                # TODO add attributes of class to type_map
                 self.type_map.copy_namespace(self.class_._class_namespace(),
                                              self)
 
@@ -264,10 +250,6 @@ class ClassDef(Type):
 
             def __repr__(self):
                 return repr(self.class_) + '(...)'
-
-            # def check_call(self, args):
-                # print('checking obj call')
-                # pass
 
         instance = Instance()
 
@@ -333,7 +315,6 @@ class Pass(Node):
 
 class BuiltinFunction(Type):
     def __init__(self, name, param_type_clss, return_type):
-        # self.type_map = type_map
         self._ast_fields = ()
         self.namespace = '__builtins__'
         self.name = name
@@ -342,8 +323,6 @@ class BuiltinFunction(Type):
 
     def check(self):
         print('checking builtin fct def', self.name)
-        # fqn = self.namespace + '.' + self.name
-        # self.type_map.stateful_push(fqn, self)
 
     def check_call(self, args):
         print('CALL CHECK', self.name, args)
@@ -387,21 +366,14 @@ class BuiltinReplacer(ast.NodeTransformer):
             ast.GtE: 'ge',
     }
 
-    # SQSLOT("__len__", sq_length, slot_sq_length, wrap_lenfunc,
-    #        "x.__len__() <==> len(x)"),
-    # SQSLOT("__delitem__", sq_ass_item, slot_sq_ass_item, wrap_sq_delitem,
-    #        "x.__delitem__(y) <==> del x[y]"),
-    # SQSLOT("__delslice__", sq_ass_slice, slot_sq_ass_slice, wrap_delslice,
-    #        "x.__delslice__(i, j) <==> del x[i:j]\n\
-            #        \n\
-            #        Use of negative indices is not supported."),
-
-    # SQSLOT("__contains__", sq_contains, slot_sq_contains, wrap_objobjproc,
-    #        "x.__contains__(y) <==> y in x"),
-    # SQSLOT("__iadd__", sq_inplace_concat, NULL,
-    #   wrap_binaryfunc, "x.__iadd__(y) <==> x+=y"),
-    # SQSLOT("__imul__", sq_inplace_repeat, NULL,
-    #   wrap_indexargfunc, "x.__imul__(y) <==> x*=y"),
+    # TODO
+    # x.__len__() <==> len(x)
+    # x.__delitem__(y) <==> del x[y]
+    # x.__delslice__(i, j) <==> del x[i:j]
+    # x.__contains__(y) <==> y in x
+    # x.__iadd__(y) <==> x+=y
+    # x.__imul__(y) <==> x*=y
+    # Etc
 
     def visit_BinOp(self, node):
         self.visit(node.left)
@@ -581,6 +553,7 @@ def main(file_):
         namespace_builder = NamespaceBuilder()
         namespace_builder.visit(module)
 
+        # TODO make a decent system to handle builtin functions
         Num = builtin.types.Num
         Any = builtin.types.Any
         print_func = BuiltinFunction(type_map, [Any], Num())

@@ -30,60 +30,7 @@ class Any(BuiltinDataType):  # Not really builtin type, but behaves like it
         return self
 
 
-# Supported magic methods:
-# x.__add__
-# x.__sub__
-# x.__mul__
-# x.__truediv__
-# x.__mod__
-# x.__pow__
-# x.__lshift__
-# x.__rshift__
-# x.__or__
-# x.__xor__
-# x.__and__
-# x.__floordiv__
-# x.__invert__
-# x.__pos__
-# x.__neg__
-# x.__eq__
-# x.__ne__
-# x.__lt__
-# x.__le__
-# x.__gt__
-# x.__ge__
-
 # Unsupported magic methods:
-# x.__r...__
-# x.__abs__
-# x.__reduce_ex__
-# x.__format__
-# x.__repr__
-# x.__setattr__
-# x.__sizeof__
-# x.__bool__
-# x.__getattribute__
-# x.__str__
-# x.__ceil__
-# x.__getnewargs__
-# x.__neg__
-# x.__class__
-# x.__new__
-# x.__subclasshook__
-# x.__delattr__
-# x.__hash__
-# x.__dir__
-# x.__index__
-# x.__pos__
-# x.__round__
-# x.__trunc__
-# x.__divmod__
-# x.__init__
-# x.__doc__
-# x.__int__
-# x.__float__
-# x.__floor__
-# x.__reduce__
 
 
 
@@ -207,7 +154,3 @@ ATTRIBUTE_MAP = {
 #    'numerator',
 #    'real',
 #    'to_bytes']
-#
-# str supports:
-#
-
