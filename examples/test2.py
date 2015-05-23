@@ -9,9 +9,9 @@ class A:
 
 
 def f(x):
-    x.bestaande_methode()
-    x.bestaande_functie()  # Not correctly called; should fail
-    return x.niet_bestaande_functie()
+    # x.bestaande_functie()  # Not correctly called
+    # x.niet_bestaande_methode()
+    return x.bestaande_methode()
 
 
 A.bestaande_functie()

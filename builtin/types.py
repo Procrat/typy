@@ -15,19 +15,25 @@ class BuiltinDataType(Type):
 
 
 class Num(BuiltinDataType):
-    pass
+    def __repr__(self):
+        return 'num'
 
 
 class Bool(BuiltinDataType):
-    pass
+    def __repr__(self):
+        return 'bool'
 
 
 class Any(BuiltinDataType):  # Not really builtin type, but behaves like it
-    def has_attribute(self, name):
-        return True
-
     def get_attribute(self, name):
         return self
+
+    @staticmethod
+    def istypeof(object_):
+        return True
+
+    def __repr__(self):
+        return 'any'
 
 
 # Unsupported magic methods:

@@ -9,6 +9,7 @@ Glossary
 
 import ast
 import builtin.types
+import insuline
 from exceptions import (NoSuchName, NoSuchAttribute, WrongBuiltinArgument,
                         WrongArgumentsLength, CheckError, NotYetSupported)
 
@@ -49,6 +50,14 @@ class Type(Node):
     def check_call(self, args):
         # TODO check for existence of __call__ and call check_call on it
         raise NotYetSupported('check_call call to', self)
+
+    @classmethod
+    def istypeof(cls, object_):
+        if isinstance(object_, cls):
+            return True
+
+        # TODO check if args has all attributes of type
+        raise NotYetSupported('istypeof call to', cls())
 
 
 class Module(Node):
@@ -305,12 +314,12 @@ class Pass(Node):
         print('checking pass')
 
 
-# class Not(Node):
-#     def __init__(self, type_map, ast_node):
-#         super().__init__(type_map, ast_node)
+class Not(Node):
+    def __init__(self, type_map, ast_node):
+        super().__init__(type_map, ast_node)
 
-#     def check(self):
-#         return builtin.types.Bool()
+    def check(self):
+        return builtin.types.Bool()
 
 
 class BuiltinFunction(Type):
@@ -328,115 +337,13 @@ class BuiltinFunction(Type):
         print('CALL CHECK', self.name, args)
 
         for param_type, arg in zip(self.param_type_clss, args):
-            if not isinstance(arg, param_type):
+            if not param_type.istypeof(arg):
                 raise WrongBuiltinArgument(self.name, param_type, arg)
 
         return self.return_type
 
     def __repr__(self):
         return self.name
-
-
-class BuiltinReplacer(ast.NodeTransformer):
-    BINOP_TRANSLATION = {
-            ast.Add: 'add',
-            ast.Sub: 'sub',
-            ast.Mult: 'mul',
-            ast.Div: 'truediv',
-            ast.Mod: 'mod',
-            ast.Pow: 'pow',
-            ast.LShift: 'lshift',
-            ast.RShift: 'rshift',
-            ast.BitOr: 'or',
-            ast.BitXor: 'xor',
-            ast.BitAnd: 'and',
-            ast.FloorDiv: 'floordiv'
-    }
-    UNARYOP_TRANSLATION = {
-            ast.Invert: 'invert',
-            ast.UAdd: 'pos',
-            ast.USub: 'neg'
-    }
-    COMPARE_TRANSLATION = {
-            ast.Eq: 'eq',
-            ast.NotEq: 'ne',
-            ast.Lt: 'lt',
-            ast.LtE: 'le',
-            ast.Gt: 'gt',
-            ast.GtE: 'ge',
-    }
-
-    # TODO
-    # x.__len__() <==> len(x)
-    # x.__delitem__(y) <==> del x[y]
-    # x.__delslice__(i, j) <==> del x[i:j]
-    # x.__contains__(y) <==> y in x
-    # x.__iadd__(y) <==> x+=y
-    # x.__imul__(y) <==> x*=y
-    # Etc
-
-    def visit_BinOp(self, node):
-        self.visit(node.left)
-        self.visit(node.right)
-        try:
-            op_name = '__%s__' % self.BINOP_TRANSLATION[type(node.op)]
-        except KeyError:
-            raise NotYetSupported('binary operation', node.op)
-        op = ast.Attribute(value=node.left, attr=op_name, ctx=ast.Load())
-        return ast.Call(func=op, args=[node.right], keywords=[], starargs=None,
-                        kwargs=None)
-
-    def visit_UnaryOp(self, node):
-        self.visit(node.operand)
-        try:
-            op_name = '__%s__' % self.UNARYOP_TRANSLATION[type(node.op)]
-        except KeyError:
-            raise NotYetSupported('unary operation', node.op)
-        op = ast.Attribute(value=node.operand, attr=op_name, ctx=ast.Load())
-        return ast.Call(func=op, args=[], keywords=[], starargs=None,
-                        kwargs=None)
-
-    def visit_Compare(self, node):
-        self.visit(node.left)
-        left = node.left
-        comparison_nodes = []
-        for op, comparator in zip(node.ops, node.comparators):
-            self.visit(comparator)
-            try:
-                op_name = '__%s__' % self.COMPARE_TRANSLATION[type(op)]
-            except KeyError:
-                raise NotYetSupported('comparison operator', op)
-            op = ast.Attribute(value=left, attr=op_name, ctx=ast.Load())
-            comparison = ast.Call(func=op, args=[comparator], keywords=[],
-                                  starargs=None, kwargs=None)
-            comparison_nodes.append(comparison)
-            left = comparator
-
-        # TODO chain with and
-        if len(comparison_nodes) > 1:
-            raise NotYetSupported('comparison chaining')
-
-        return comparison_nodes[0]
-
-    # def visit_Subscript(self, node):
-    #     self.visit(node.value)
-    #     self.visit(node.slice)
-    #     if isinstance(node.slice, ast.Index):
-    #         if isinstance(node.ctx, ast.Load):
-    #             op_name = '__getitem__'
-    #         elif isinstance(node.ctx, ast.Store):
-    #             op_name = '__setitem__'
-    #         elif isinstance(node.ctx, ast.Del):
-    #             op_name = '__delitem__'
-    #     elif isinstance(node.slice, ast.Slice):
-    #         if isinstance(node.ctx, ast.Load):
-    #             op_name = '__getslice__'
-    #         elif isinstance(node.ctx, ast.Store):
-    #             op_name = '__setslice__'
-    #         elif isinstance(node.ctx, ast.Del):
-    #             op_name = '__delslice__'
-    #     # TODO verander node
-    #     return node
 
 
 class NodeVisitor:
@@ -541,8 +448,7 @@ def main(file_):
     print(ast.dump(module))
 
     try:
-        replacer = BuiltinReplacer()
-        replacer.visit(module)
+        insuline.replace_syntactic_sugar(module)
 
         print(ast.dump(module))
 
@@ -556,7 +462,7 @@ def main(file_):
         # TODO make a decent system to handle builtin functions
         Num = builtin.types.Num
         Any = builtin.types.Any
-        print_func = BuiltinFunction(type_map, [Any], Num())
+        print_func = BuiltinFunction('print', [Any], Num())
         type_map.stateful_push('__builtins__.print', print_func)
 
         try:
