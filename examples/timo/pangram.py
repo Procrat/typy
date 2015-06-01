@@ -1,6 +1,6 @@
 aantal=int(input())
 
-for i in range(1,aantal+1):
+for i, k in range(1,aantal+1):
     zinTekens=""
     zin=str(input()).lower()
     for teken in zin:
@@ -12,5 +12,5 @@ for i in range(1,aantal+1):
     else:
         print("De zin telt "+str(len(zinTekens))+" verschillende letters.")
 
-    
-    
+
+

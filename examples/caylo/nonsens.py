@@ -1,5 +1,5 @@
 import random
-import re
+
 
 def woordenlijst( file ):
 	fo = open(file)

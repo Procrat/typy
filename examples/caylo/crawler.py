@@ -1,4 +1,10 @@
-import re, urllib.request, urllib.parse, urllib.error, time, sys, pickle
+import re
+import urllib.request
+import urllib.parse
+import urllib.error
+import time
+import sys
+import pickle
 
 # Part 1 : web crawling
 # argument: the starting link to crawl from

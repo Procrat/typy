@@ -3,7 +3,8 @@ Created on Mar 13, 2015
 
 @author: david
 '''
-import re
+
+
 def filterPeptide(peptide,minlen = 0,maxlen=None,bevat=None,ontbreekt=None):
     if(len(peptide) < minlen):
         return False

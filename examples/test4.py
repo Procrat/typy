@@ -1,5 +1,7 @@
 3 < 4 < 5 < 6
 
-x.__lt__(4) and y.__lt__(5) and z.__lt__(6)
+4 in 5
+
+# 3 < 4 in [5] not in 6
 
 not 7
