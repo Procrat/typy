@@ -42,13 +42,13 @@ class Function(Type):
         self.context = type_map.build_context_for(self.name)
 
     def check_call(self, args):
-        debug('call check', self.name)
+        debug('call check %s', self.name)
 
         if len(self.params) != len(args):
             raise WrongArgumentsLength(self.name, len(self.params), len(args))
 
         param_map = {param: arg for param, arg in zip(self.params, args)}
-        debug('  ', param_map)
+        debug('  %r', param_map)
         self.type_map.enter_function_scope(self.context, param_map)
 
         for stmt in self.body:
@@ -87,8 +87,8 @@ class Class(Type):
     def get_attribute(self, name):
         return super().get_attribute(name)
 
-        # TODO Zoek var/meth in supertypes
-        # TODO Zoek in std class vars/meths
+        # TODO search var/meth in supertypes
+        # TODO search in std class vars/meths
 
     def __repr__(self):
         return self.name
@@ -128,7 +128,7 @@ class Method(Type):
         return getattr(self.function, name)
 
     def check_call(self, args):
-        debug('method call check {}.{}'.format(self.object_, self.function))
+        debug('method call check %s.%s', self.object_, self.function)
         return self.function.check_call([self.object_] + args)
 
     def __repr__(self):

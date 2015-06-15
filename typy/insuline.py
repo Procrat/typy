@@ -1,3 +1,9 @@
+"""
+This module operates on the AST before any checks are made.
+It's sole goal is to remove purely syntactic sugar and to replace it with a
+semantically equivalent AST.
+"""
+
 import ast
 
 from typy.exceptions import NotYetSupported

@@ -13,7 +13,7 @@ class BuiltinFunction(Type):
         self.return_type = return_type
 
     def check_call(self, args):
-        debug('call check', self.name, args)
+        debug('call check %s %s', self.name, args)
 
         for param_type, arg in zip(self.param_type_clss, args):
             if not param_type.istypeof(arg):

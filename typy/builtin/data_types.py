@@ -10,7 +10,7 @@ class BuiltinDataType(Type):
         self.attributes = {}
 
     def check(self):
-        debug('checking type', repr(self))
+        debug('checking type %r', self)
         return self
 
     def get_attribute(self, name):
@@ -30,7 +30,28 @@ class BuiltinObject(BuiltinDataType):
     def __init__(self):
         super().__init__()
         self.attributes.update({
-            # '__class__': x,
+            # '__class__': Type(),
+            # '__delattr__',
+            # '__dir__': Fun('__dir__', [], List(Str)),
+            '__doc__': Str,
+            '__eq__': Fun('__eq__', [Any], Bool),
+            '__format__': Fun('__format__', [Str], Str),
+            '__ge__': Fun('__ge__', [Any], Bool),
+            # '__getattribute__',
+            '__gt__': Fun('__gt__', [Any], Bool),
+            '__hash__': Fun('__hash__', [], Int),
+            # '__init__': Fun('__init__', [...], ...),
+            '__le__': Fun('__le__', [Any], Bool),
+            '__lt__': Fun('__lt__', [Any], Bool),
+            '__ne__': Fun('__ne__', [Any], Bool),
+            # '__new__',
+            '__reduce__': Fun('__reduce__', [], Str),
+            '__reduce_ex__': Fun('__reduce_ex__', [Int], Str),
+            '__repr__': Fun('__repr__', [], Str),
+            # '__setattr__',
+            '__sizeof__': Fun('__sizeof__', [], Int),
+            '__str__': Fun('__str__', [], Str),
+            '__subclasshook__': Fun('__subclasshook__', [Any], Bool),
         })
 
 
@@ -38,80 +59,127 @@ class Int(BuiltinObject):
     def __init__(self):
         super().__init__()
         self.attributes.update({
+            '__abs__': Fun('__abs__', [], Int),
             '__add__': Fun('__add__', [Int], Int),
+            '__and__': Fun('__and__', [Any], Int),
+            '__bool__': Fun('__bool__', [], Bool),
+            '__ceil__': Fun('__ceil__', [], Int),
+            # '__divmod__': Fun('__divmod__', [Int], Tuple(Int, Int)),
+            # '__float__': Fun('__float__', [], Float),
+            '__floor__': Fun('__floor__', [], Int),
+            '__floordiv__': Fun('__floordiv__', [Int], Int),
+            # '__getnewargs__': Fun('__getnewargs__', [Int], Int),
+            '__index__': Fun('__index__', [], Int),
+            '__int__': Fun('__int__', [], Int),
             '__invert__': Fun('__invert__', [], Int),
-            '__lt__': Fun('__lt__', [Int], Bool),
+            '__lshift__': Fun('__lshift__', [Int], Int),
+            '__mod__': Fun('__mod__', [Int], Int),
+            '__mul__': Fun('__mul__', [Int], Int),
+            '__neg__': Fun('__neg__', [], Int),
+            '__or__': Fun('__or__', [Any], Int),
+            '__pos__': Fun('__pos__', [], Int),
+            # '__pow__': Fun('__pow__', [Int, Optional(Int)], Int),
+            '__radd__': Fun('__radd__', [Int], Int),
+            '__rand__': Fun('__rand__', [Any], Int),
+            # '__rdivmod__': Fun('__rdivmod__', [Int], Tuple(Int, Int)),
+            '__rfloordiv__': Fun('__rfloordiv__', [Int], Int),
+            '__rlshift__': Fun('__rlshift__', [Int], Int),
+            '__rmod__': Fun('__rmod__', [Int], Int),
+            '__rmul__': Fun('__rmul__', [Int], Int),
+            '__ror__': Fun('__ror__', [Any], Int),
+            '__round__': Fun('__round__', [], Int),
+            '__rpow__': Fun('__rpow__', [Int], Int),
+            '__rrshift__': Fun('__rrshift__', [Int], Int),
+            '__rshift__': Fun('__rshift__', [Int], Int),
+            '__rsub__': Fun('__rsub__', [Int], Int),
+            '__rtruediv__': Fun('__rtruediv__', [Int], Int),
+            '__rxor__': Fun('__rxor__', [Any], Int),
+            '__sub__': Fun('__sub__', [Int], Int),
+            '__truediv__': Fun('__truediv__', [Int], Int),
+            '__trunc__': Fun('__trunc__', [], Int),
+            '__xor__': Fun('__xor__', [Any], Int),
+            'bit_length': Fun('bit_length', [], Int),
+            # 'conjugate': Fun('conjugate', [], Complex),
+            'denominator': Int,
+            # 'from_bytes': Fun('from_bytes', [Bytes], Int),
+            'imag': Int,
+            'numerator': Int,
+            'real': Int,
+            # 'to_bytes': Fun('to_bytes', [Int, Str], Bytes),
         })
 
 
 class Bool(Int):
-    def __init__(self):
-        super().__init__()
-        self.attributes.update({
-            '__abs__': Fun('__abs__', [Bool], Int),
-            '__add__': Fun('__add__', [Bool], Int),
-            '__and__': Fun('__and__', [Bool], Int),
-            '__bool__': Fun('__bool__', [Bool], Int),
-            '__ceil__': Fun('__ceil__', [Bool], Int),
-            '__divmod__': Fun('__divmod__', [Bool], Int),
-            '__float__': Fun('__float__', [Bool], Int),
-            '__floor__': Fun('__floor__', [Bool], Int),
-            '__floordiv__': Fun('__floordiv__', [Bool], Int),
-            '__getnewargs__': Fun('__getnewargs__', [Bool], Int),
-            '__index__': Fun('__index__', [Bool], Int),
-            '__int__': Fun('__int__', [Bool], Int),
-            '__invert__': Fun('__invert__', [Bool], Int),
-            '__lshift__': Fun('__lshift__', [Bool], Int),
-            '__mod__': Fun('__mod__', [Bool], Int),
-            '__mul__': Fun('__mul__', [Bool], Int),
-            '__neg__': Fun('__neg__', [Bool], Int),
-            '__or__': Fun('__or__', [Bool], Int),
-            '__pos__': Fun('__pos__', [Bool], Int),
-            '__pow__': Fun('__pow__', [Bool], Int),
-            '__radd__': Fun('__radd__', [Bool], Int),
-            '__rand__': Fun('__rand__', [Bool], Int),
-            '__rdivmod__': Fun('__rdivmod__', [Bool], Int),
-            '__rfloordiv__': Fun('__rfloordiv__', [Bool], Int),
-            '__rlshift__': Fun('__rlshift__', [Bool], Int),
-            '__rmod__': Fun('__rmod__', [Bool], Int),
-            '__rmul__': Fun('__rmul__', [Bool], Int),
-            '__ror__': Fun('__ror__', [Bool], Int),
-            '__round__': Fun('__round__', [Bool], Int),
-            '__rpow__': Fun('__rpow__', [Bool], Int),
-            '__rrshift__': Fun('__rrshift__', [Bool], Int),
-            '__rshift__': Fun('__rshift__', [Bool], Int),
-            '__rsub__': Fun('__rsub__', [Bool], Int),
-            '__rtruediv__': Fun('__rtruediv__', [Bool], Int),
-            '__rxor__': Fun('__rxor__', [Bool], Int),
-            '__sub__': Fun('__sub__', [Bool], Int),
-            '__truediv__': Fun('__truediv__', [Bool], Int),
-            '__trunc__': Fun('__trunc__', [Bool], Int),
-            '__xor__': Fun('__xor__', [Bool], Int),
-            'bit_length': Fun('bit_length', [Bool], Int),
-            'conjugate': Fun('conjugate', [Bool], Int),
-            'denominator': Fun('denominator', [Bool], Int),
-            'from_bytes': Fun('from_bytes', [Bool], Int),
-            'imag': Fun('imag', [Bool], Int),
-            'numerator': Fun('numerator', [Bool], Int),
-            'real': Fun('real', [Bool], Int),
-            'to_bytes': Fun('to_bytes', [Bool], Int),
-        })
-
-
-class Float(BuiltinDataType):
-    pass
-
-
-class Complex(BuiltinDataType):
     pass
 
 
 class Str(BuiltinDataType):
-    pass
-
+    def __init__(self):
+        super().__init__()
+        # TODO
+        # self.attributes.update({
+            # '__add__',
+            # '__contains__',
+            # '__getitem__',
+            # '__getnewargs__',
+            # '__iter__',
+            # '__len__',
+            # '__mod__',
+            # '__mul__',
+            # '__rmod__',
+            # '__rmul__',
+            # 'capitalize',
+            # 'casefold',
+            # 'center',
+            # 'count',
+            # 'encode',
+            # 'endswith',
+            # 'expandtabs',
+            # 'find',
+            # 'format',
+            # 'format_map',
+            # 'index',
+            # 'isalnum',
+            # 'isalpha',
+            # 'isdecimal',
+            # 'isdigit',
+            # 'isidentifier',
+            # 'islower',
+            # 'isnumeric',
+            # 'isprintable',
+            # 'isspace',
+            # 'istitle',
+            # 'isupper',
+            # 'join',
+            # 'ljust',
+            # 'lower',
+            # 'lstrip',
+            # 'maketrans',
+            # 'partition',
+            # 'replace',
+            # 'rfind',
+            # 'rindex',
+            # 'rjust',
+            # 'rpartition',
+            # 'rsplit',
+            # 'rstrip',
+            # 'split',
+            # 'splitlines',
+            # 'startswith',
+            # 'strip',
+            # 'swapcase',
+            # 'title',
+            # 'translate',
+            # 'upper',
+            # 'zfill'
+        # }
 
 class None_(BuiltinDataType):
-    pass
+    def __init__(self):
+        super().__init__()
+        self.attributes.update({
+            '__bool__': Fun('__bool__', [], Bool),
+        })
 
 
 class Any(BuiltinDataType):  # Not really builtin type, but behaves like it
@@ -139,14 +207,14 @@ def add_to_type_map(type_map):
         # ('list', List),
         # ('map', Map),
         # ('memoryview', Memoryview),
-        # ('object', Object),
+        ('object', BuiltinObject),
         # ('property', Property),
         # ('range', Range),
         # ('reversed', Reversed),
         # ('set', Set),
         # ('slice', Slice),
         # ('staticmethod', Staticmethod),
-        # ('str', Str),
+        ('str', Str),
         # ('super', Super),
         # ('tuple', Tuple),
         # ('type', Type),

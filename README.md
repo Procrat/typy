@@ -1,8 +1,9 @@
 # typy
-A static type checker for Python (using control flow analysis).
+A static type checker for Python 3 (using control flow analysis).
 
 ## WORK IN PROGRESS
-This isn't even remotely finished and the code is still a mess.
+This isn't even remotely finished. This project originated as a proof of
+concept and is currently still in this state.
 
 ## WARNING
 Even if all Python language features were supported, it is not possible to have
@@ -10,11 +11,17 @@ a type checker that always works. This is due to the dynamic nature of Python.
 For example, classes and functions can be created, deleted and otherwise
 manipulated on the fly. Don't expect magic from typy.
 
-## (Somewhat) supported type checking
-- Function/method parameter type checking
-- Function/method return type checking
+## Usage
+Install `typy` by running `python setup.py install`.
+Run `typy <file>` to type check a file.
+
+## Tests
+All tests can be run with `py.test`.
+Install `pytest` if need be: `pip install pytest`
 
 ## (Somewhat) supported handling of language features
+- Function/method parameter type checking
+- Function/method return type checking
 - Replacement of builtin operators to magic method calls
   - numeric operators
   - bit operators
@@ -26,7 +33,7 @@ manipulated on the fly. Don't expect magic from typy.
 
 ## Will soon be supported
 - All attributes of all builtin types
-    -> istypeof for all builtins + klassen
+    - istypeof for all builtins + klassen
 - Sequence types (implement get_enclosed_type/is_iterable)
 - Statements: imports (Import, ImportFrom)
     - Module namespace/attributes
@@ -100,5 +107,5 @@ manipulated on the fly. Don't expect magic from typy.
   - __reduce__
 
 ## Acknowledgements
-PyPy compiler
-CPython compiler
+A big thanks goes out to the PyPy compiler and the CPython compiler for
+supplying the exact semantics of some Python concepts.

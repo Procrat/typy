@@ -23,7 +23,7 @@ class Node:
                 pass
 
     def iter_child_nodes(self):
-        for name, field in self.iter_fields():
+        for _name, field in self.iter_fields():
             if isinstance(field, Node):
                 yield field
             elif isinstance(field, list):
@@ -48,7 +48,7 @@ class FunctionDef(Node):
         self._ast_fields = ('name', 'params', 'body')
 
     def check(self):
-        debug('checking func def', self.name)
+        debug('checking func def %s', self.name)
         function = Function(self, self.type_map)
         self.type_map.add_variable(self.name, function)
 
@@ -63,7 +63,7 @@ class ClassDef(Node):
         self.body = [convert(type_map, stmt) for stmt in ast_node.body]
 
     def check(self):
-        debug('checking class def', self.name)
+        debug('checking class def %s', self.name)
 
         class_namespace = self.type_map.enter_namespace(self.name)
 
@@ -87,10 +87,10 @@ class Attribute(Node):
         self.ctx = ast_node.ctx
 
     def check(self):
-        debug('checking attr', self)
+        debug('checking attr %s', self)
 
         value_type = self.value.check()
-        debug('attr', self, '=', value_type)
+        debug('attr %r = %r', self, value_type)
 
         if isinstance(self.ctx, ast.Load):
             return value_type.get_attribute(self.attr)
@@ -111,7 +111,7 @@ class Name(Node):
         self.ctx = ast_node.ctx
 
     def check(self):
-        debug('checking name', self.id)
+        debug('checking name %s', self.id)
 
         if isinstance(self.ctx, ast.Load):
             return self.type_map.find(self.id)
@@ -184,8 +184,13 @@ class Module(Node, Type):
 
         self.module_namespace = self.type_map.enter_namespace('__main__')
 
+        debug('entering %r', self.type_map.current_namespace)
+
         for stmt in self.body:
+            debug('still in %r', self.type_map.current_namespace)
             stmt.check()
+
+        debug('leaving %r', self.type_map.current_namespace)
 
         self.type_map.exit_namespace()
 
@@ -208,7 +213,7 @@ class Assign(Node):
         self._ast_fields = ('target', 'value')
 
     def check(self):
-        debug('checking assign', self.target)
+        debug('checking assign %r', self.target)
 
         _assign(self.target, self.value, self.type_map)
 
@@ -363,7 +368,7 @@ class NameConstant(Node):
         self.value = ast_node.value
 
     def check(self):
-        debug('checking name constant', self.value)
+        debug('checking name constant %r', self.value)
         if self.value is None:
             return data_types.None_()
         elif self.value is True or self.value is False:
@@ -422,8 +427,8 @@ class Num(Node):
     def __init__(self, type_map, ast_node):
         self.number_type = {
             int: data_types.Int,
-            float: data_types.Float,
-            complex: data_types.Complex,
+            # float: data_types.Float,
+            # complex: data_types.Complex,
         }[type(ast_node.n)]
 
     def check(self):

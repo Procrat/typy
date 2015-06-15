@@ -5,9 +5,8 @@ def f(x):
 def g(x):
     x + 1
     ~x
-    # print(x < x > x)
     return x
 
 
 print(f(5) + 6)
-# f(5).lolcatz()
+f(5).non_existent_method()

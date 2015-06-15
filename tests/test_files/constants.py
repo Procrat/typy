@@ -2,6 +2,6 @@ x = True
 False
 y = None
 
-# No named constants
+# These are no named constants
 # z = Ellipsis
 # q = NotImplemented
