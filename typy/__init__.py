@@ -14,9 +14,8 @@ def main():
     parser.add_argument('file', type=open)
     args = parser.parse_args()
 
-    if args.verbose:
-        logging.basicConfig(format='%(levelname)s: %(message)s',
-                            level=logging.DEBUG)
+    log_level = logging.DEBUG if args.verbose else logging.WARNING
+    logging.basicConfig(format='%(levelname)s: %(message)s', level=log_level)
 
     try:
         checker.check(args.file)

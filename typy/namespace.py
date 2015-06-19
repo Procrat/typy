@@ -5,7 +5,7 @@ the code.
 """
 
 from collections import UserDict
-from logging import debug
+from logging import debug, warn
 
 from typy.exceptions import NoSuchName
 
@@ -69,8 +69,11 @@ class TypeMap:
         self.current_namespace = self.stack.pop()
 
     def add_variable(self, name, object_):
-        # TODO check if name exist and is of other type
-        # If so, create intersection type
+        if (name in self.current_namespace and
+                not self.current_namespace[name].istypeof(object_)):
+            warn('Overriding name with different type: %r instead of %r',
+                 object_, self.current_namespace[name])
+
         self.current_namespace[name] = object_
 
 
