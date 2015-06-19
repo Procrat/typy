@@ -11,16 +11,25 @@ import os.path
 HERE = os.path.join(os.path.dirname(__file__), 'test_files')
 TEST_FILES = [
     'assignment',
+    'attributes',
+    'base_types',
     'builtin_attribute_set',
-    # 'builtin_types',
     'closure',
     'constants',
+    'comparisons',
+    'first_class_class',
+    'first_class_class_bad',
     'ifexp',
-    # 'magic_methods',
-    'test1',
-    'test2',
-    # 'test3',
-    # 'test4',
+    'method',
+    'non_existent_name',
+    'non_callable',
+    'return_of_pass',
+    'return_value',
+    'static_function',
+    'static_function_bad_call',
+    'tuple',
+    'wrong_argument_number',
+    'wrong_builtin_parameter',
 ]
 
 
