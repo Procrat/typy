@@ -1,3 +1,10 @@
+"""
+Our own implementation of an abstract syntax tree (AST).
+
+The convert function recursively converts a Python AST (from the module `ast`)
+to our own AST (of the class `Node`).
+"""
+
 import ast
 from logging import debug
 
@@ -352,7 +359,7 @@ class IfExp(Node):
         debug('checking ifexp')
 
         # TODO take isinstance into account (?)
-        # TODO real branching?
+        # TODO Intersection type of both branches
         self.test.check()
         self.body.check()
         self.orelse.check()

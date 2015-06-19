@@ -1,3 +1,9 @@
+"""
+This module handles namespaces. The TypeMap keeps track of the current
+namespace during each step of the type checking process as it browses through
+the code.
+"""
+
 from collections import UserDict
 from logging import debug
 

@@ -1,3 +1,8 @@
+"""
+The `test_files` folder contains pairs of files (xxx.py, xxx.out).
+This module checks whether typy run on xxx.py returns the same as xxx.out.
+"""
+
 import pytest
 import typy.checker
 import typy.exceptions
