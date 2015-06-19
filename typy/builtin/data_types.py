@@ -7,29 +7,7 @@ from typy.builtin.functions import BuiltinFunction as Fun
 
 class BuiltinDataType(Type):
     def __init__(self):
-        self.attributes = {}
-
-    def check(self):
-        debug('checking type %r', self)
-        return self
-
-    def get_attribute(self, name):
-        try:
-            return self.attributes[name]
-        except KeyError:
-            raise NoSuchAttribute(self, name)
-
-    def set_attribute(self, name, value):
-        raise CantSetBuiltinAttribute(self)
-
-    def __repr__(self):
-        return self.__class__.__name__
-
-
-class BuiltinObject(BuiltinDataType):
-    def __init__(self):
-        super().__init__()
-        self.attributes.update({
+        self.attributes = {
             # '__class__': Type(),
             # '__delattr__',
             # '__dir__': Fun('__dir__', [], List(Str)),
@@ -52,10 +30,31 @@ class BuiltinObject(BuiltinDataType):
             '__sizeof__': Fun('__sizeof__', [], Int),
             '__str__': Fun('__str__', [], Str),
             '__subclasshook__': Fun('__subclasshook__', [Any], Bool),
-        })
+        }
+
+    def check(self):
+        debug('checking type %r', self)
+        return self
+
+    @classmethod
+    def istypeof(cls, object_):
+        if isinstance(object_, cls):
+            return True
+
+    def get_attribute(self, name):
+        try:
+            return self.attributes[name]
+        except KeyError:
+            raise NoSuchAttribute(self, name)
+
+    def set_attribute(self, name, value):
+        raise CantSetBuiltinAttribute(self)
+
+    def __repr__(self):
+        return self.__class__.__name__
 
 
-class Int(BuiltinObject):
+class Int(BuiltinDataType):
     def __init__(self):
         super().__init__()
         self.attributes.update({
@@ -107,6 +106,10 @@ class Int(BuiltinObject):
             'real': Int,
             # 'to_bytes': Fun('to_bytes', [Int, Str], Bytes),
         })
+
+    def check_call(self, args):
+        # TODO Check args = (Optional(Intersect(Num, string, bytes, of has __int__)), Optional(Integer))
+        return self
 
 
 class Bool(Int):
@@ -174,6 +177,7 @@ class Str(BuiltinDataType):
             # 'zfill'
         # }
 
+
 class None_(BuiltinDataType):
     def __init__(self):
         super().__init__()
@@ -207,7 +211,7 @@ def add_to_type_map(type_map):
         # ('list', List),
         # ('map', Map),
         # ('memoryview', Memoryview),
-        ('object', BuiltinObject),
+        ('object', BuiltinDataType),
         # ('property', Property),
         # ('range', Range),
         # ('reversed', Reversed),
