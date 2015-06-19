@@ -10,7 +10,7 @@ from logging import debug
 
 from typy.builtin import data_types
 from typy.exceptions import NotYetSupported, NoSuchAttribute, NotIterable
-from typy.types import Type, Function, Class
+from typy import types
 
 
 class Node:
@@ -56,8 +56,9 @@ class FunctionDef(Node):
 
     def check(self):
         debug('checking func def %s', self.name)
-        function = Function(self, self.type_map)
+        function = types.Function(self, self.type_map)
         self.type_map.add_variable(self.name, function)
+        return data_types.None_()
 
     def __repr__(self):
         return 'def ' + self.name + '()'
@@ -79,8 +80,10 @@ class ClassDef(Node):
 
         self.type_map.exit_namespace()
 
-        class_ = Class(self, self.type_map, class_namespace)
+        class_ = types.Class(self, self.type_map, class_namespace)
         self.type_map.add_variable(self.name, class_)
+
+        return data_types.None_()
 
     def __repr__(self):
         return 'def ' + self.name
@@ -161,7 +164,8 @@ class Expr(Node):
 
     def check(self):
         debug('checking expr')
-        return self.value.check()
+        self.value.check()
+        return data_types.None_()
 
     def __repr__(self):
         return repr(self.value)
@@ -180,10 +184,10 @@ class Return(Node):
         return 'return ' + repr(self.value)
 
 
-class Module(Node, Type):
+class Module(Node, types.Type):
     def __init__(self, type_map, ast_node):
         Node.__init__(self, type_map, ast_node)
-        Type.__init__(self, type_map)
+        types.Type.__init__(self, type_map)
         self.body = [convert(type_map, stmt) for stmt in ast_node.body]
 
     def check(self):
@@ -205,7 +209,7 @@ class Module(Node, Type):
         try:
             return self.module_namespace[name]
         except KeyError:
-            Type.get_attribute(self, name)
+            types.Type.get_attribute(self, name)
 
 
 class Assign(Node):
@@ -221,8 +225,8 @@ class Assign(Node):
 
     def check(self):
         debug('checking assign %r', self.target)
-
         _assign(self.target, self.value, self.type_map)
+        return data_types.None_()
 
     def __repr__(self):
         return repr(self.target) + ' = ' + repr(self.value)
@@ -231,6 +235,7 @@ class Assign(Node):
 class Pass(Node):
     def check(self):
         debug('checking pass')
+        return data_types.None_()
 
     def __repr__(self):
         return 'pass'
@@ -261,7 +266,9 @@ class BoolOp(Node):
 
         for value in self.values:
             value.check()
+
         # TODO return intersection van types?
+        return data_types.Bool()
 
     def __repr__(self):
         op_name = ' {} '.format(self.op)
@@ -312,6 +319,9 @@ class For(Node):
         for stmt in self.orelse:
             stmt.check()
 
+        # TODO return intersection of values of both branches
+        return data_types.None_()
+
     def __repr__(self):
         s = 'for {!r} in {!r}:\n    '.format(self.target, self.iter)
         s += '\n    '.join(repr(stmt) for stmt in self.body)
@@ -339,6 +349,9 @@ class If(Node):
         for stmt in self.orelse:
             stmt.check()
 
+        # TODO return intersection of values of both branches
+        return data_types.None_()
+
     def __repr__(self):
         s = 'if {!r}:\n    '.format(self.test)
         s += '\n    '.join(repr(stmt) for stmt in self.body)
@@ -359,10 +372,10 @@ class IfExp(Node):
         debug('checking ifexp')
 
         # TODO take isinstance into account (?)
-        # TODO Intersection type of both branches
         self.test.check()
-        self.body.check()
-        self.orelse.check()
+        value1 = self.body.check()
+        value2 = self.orelse.check()
+        return types.Intersection(value1, value2)
 
     def __repr__(self):
         template = '{!r} if {!r} else {!r}'
@@ -405,6 +418,9 @@ class While(Node):
         for stmt in self.orelse:
             stmt.check()
 
+        # TODO return intersection of values of both branches
+        return data_types.None_()
+
     def __repr__(self):
         s = 'while {!r}:\n    '.format(self.test)
         s += '\n    '.join(repr(stmt) for stmt in self.body)
@@ -417,6 +433,7 @@ class While(Node):
 class Break(Node):
     def check(self):
         debug('checking break')
+        return data_types.None_()
 
     def __repr__(self):
         return 'break'
@@ -425,6 +442,7 @@ class Break(Node):
 class Continue(Node):
     def check(self):
         debug('checking continue')
+        return data_types.None_()
 
     def __repr__(self):
         return 'continue'
@@ -455,7 +473,7 @@ class Tuple(Node):
 
         if isinstance(self.ctx, ast.Load):
             el_types = (el.check() for el in self.elts)
-            return data_types.Tuple(self.type_map, *el_types)
+            return types.Tuple(self.type_map, *el_types)
         elif isinstance(self.ctx, ast.Store):
             return self
         else:

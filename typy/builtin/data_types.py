@@ -1,8 +1,33 @@
 from logging import debug
 
 from typy.exceptions import NoSuchAttribute, CantSetBuiltinAttribute
-from typy.types import Type
+from typy.types import Type, Instance
 from typy.builtin.functions import BuiltinFunction as Fun
+
+
+class BuiltinDataInstance(Instance):
+    def set_attribute(self, name, value):
+        raise CantSetBuiltinAttribute(self)
+
+
+class Int(BuiltinDataInstance):
+    def __init__(self):
+        super().__init__(IntType())
+
+
+class Bool(BuiltinDataInstance):
+    def __init__(self):
+        super().__init__(BoolType())
+
+
+class Str(BuiltinDataInstance):
+    def __init__(self):
+        super().__init__(StrType())
+
+
+class None_(BuiltinDataInstance):
+    def __init__(self):
+        super().__init__(NoneType())
 
 
 class BuiltinDataType(Type):
@@ -36,9 +61,8 @@ class BuiltinDataType(Type):
         debug('checking type %r', self)
         return self
 
-    @classmethod
-    def istypeof(cls, object_):
-        if isinstance(object_, cls):
+    def istypeof(self, object_):
+        if isinstance(object_, self.__class__):
             return True
 
     def get_attribute(self, name):
@@ -53,8 +77,11 @@ class BuiltinDataType(Type):
     def __repr__(self):
         return self.__class__.__name__
 
+    def __str__(self):
+        return 'object'
 
-class Int(BuiltinDataType):
+
+class IntType(BuiltinDataType):
     def __init__(self):
         super().__init__()
         self.attributes.update({
@@ -111,79 +138,89 @@ class Int(BuiltinDataType):
         # TODO Check args = (Optional(Intersect(Num, string, bytes, of has __int__)), Optional(Integer))
         return self
 
+    def __str__(self):
+        return 'int'
 
-class Bool(Int):
-    pass
+
+class BoolType(IntType):
+    def __str__(self):
+        return 'bool'
 
 
-class Str(BuiltinDataType):
+class StrType(BuiltinDataType):
     def __init__(self):
         super().__init__()
         # TODO
         # self.attributes.update({
-            # '__add__',
-            # '__contains__',
-            # '__getitem__',
-            # '__getnewargs__',
-            # '__iter__',
-            # '__len__',
-            # '__mod__',
-            # '__mul__',
-            # '__rmod__',
-            # '__rmul__',
-            # 'capitalize',
-            # 'casefold',
-            # 'center',
-            # 'count',
-            # 'encode',
-            # 'endswith',
-            # 'expandtabs',
-            # 'find',
-            # 'format',
-            # 'format_map',
-            # 'index',
-            # 'isalnum',
-            # 'isalpha',
-            # 'isdecimal',
-            # 'isdigit',
-            # 'isidentifier',
-            # 'islower',
-            # 'isnumeric',
-            # 'isprintable',
-            # 'isspace',
-            # 'istitle',
-            # 'isupper',
-            # 'join',
-            # 'ljust',
-            # 'lower',
-            # 'lstrip',
-            # 'maketrans',
-            # 'partition',
-            # 'replace',
-            # 'rfind',
-            # 'rindex',
-            # 'rjust',
-            # 'rpartition',
-            # 'rsplit',
-            # 'rstrip',
-            # 'split',
-            # 'splitlines',
-            # 'startswith',
-            # 'strip',
-            # 'swapcase',
-            # 'title',
-            # 'translate',
-            # 'upper',
-            # 'zfill'
+        #     '__add__',
+        #     '__contains__',
+        #     '__getitem__',
+        #     '__getnewargs__',
+        #     '__iter__',
+        #     '__len__',
+        #     '__mod__',
+        #     '__mul__',
+        #     '__rmod__',
+        #     '__rmul__',
+        #     'capitalize',
+        #     'casefold',
+        #     'center',
+        #     'count',
+        #     'encode',
+        #     'endswith',
+        #     'expandtabs',
+        #     'find',
+        #     'format',
+        #     'format_map',
+        #     'index',
+        #     'isalnum',
+        #     'isalpha',
+        #     'isdecimal',
+        #     'isdigit',
+        #     'isidentifier',
+        #     'islower',
+        #     'isnumeric',
+        #     'isprintable',
+        #     'isspace',
+        #     'istitle',
+        #     'isupper',
+        #     'join',
+        #     'ljust',
+        #     'lower',
+        #     'lstrip',
+        #     'maketrans',
+        #     'partition',
+        #     'replace',
+        #     'rfind',
+        #     'rindex',
+        #     'rjust',
+        #     'rpartition',
+        #     'rsplit',
+        #     'rstrip',
+        #     'split',
+        #     'splitlines',
+        #     'startswith',
+        #     'strip',
+        #     'swapcase',
+        #     'title',
+        #     'translate',
+        #     'upper',
+        #     'zfill'
         # }
 
+    def __str__(self):
+        return 'str'
 
-class None_(BuiltinDataType):
+
+class NoneType(BuiltinDataType):
     def __init__(self):
         super().__init__()
         self.attributes.update({
             '__bool__': Fun('__bool__', [], Bool),
         })
+
+    def __str__(self):
+        return 'None'
 
 
 class Any(BuiltinDataType):  # Not really builtin type, but behaves like it
@@ -194,10 +231,13 @@ class Any(BuiltinDataType):  # Not really builtin type, but behaves like it
     def istypeof(object_):
         return True
 
+    def __str__(self):
+        return '<any>'
+
 
 def add_to_type_map(type_map):
     TYPES = [
-        ('bool', Bool),
+        ('bool', BoolType),
         # ('bytearray', Bytearray),
         # ('bytes', Bytes),
         # ('classmethod', Classmethod),
@@ -207,7 +247,7 @@ def add_to_type_map(type_map):
         # ('filter', Filter),
         # ('float', Float),
         # ('frozenset', Frozenset),
-        ('int', Int),
+        ('int', IntType),
         # ('list', List),
         # ('map', Map),
         # ('memoryview', Memoryview),
@@ -218,7 +258,7 @@ def add_to_type_map(type_map):
         # ('set', Set),
         # ('slice', Slice),
         # ('staticmethod', Staticmethod),
-        ('str', Str),
+        ('str', StrType),
         # ('super', Super),
         # ('tuple', Tuple),
         # ('type', Type),

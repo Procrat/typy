@@ -1,28 +1,38 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from logging import debug
+import inspect
 
-from typy.types import Type, Class
-from typy.exceptions import WrongBuiltinArgument
+from typy.types import Type
+from typy.exceptions import WrongBuiltinArgument, WrongArgumentsLength
 
 
 class BuiltinFunction(Type):
-    def __init__(self, name, param_type_clss, return_type):
+    def __init__(self, name, param_types, return_type):
         self.name = name
-        self.param_type_clss = param_type_clss
+        self.param_types = param_types
         self.return_type = return_type
 
     def check_call(self, args):
-        debug('call check %s %s', self.name, args)
+        debug('call check %s %s %s', self.name, self.param_types, args)
 
-        for param_type, arg in zip(self.param_type_clss, args):
+        if len(self.param_types) != len(args):
+            raise WrongArgumentsLength(self.name, len(self.param_types),
+                                       len(args))
+
+        for param_type, arg in zip(self.param_types, args):
+            if inspect.isclass(param_type):
+                param_type = param_type()
             if not param_type.istypeof(arg):
                 raise WrongBuiltinArgument(self.name, param_type, arg)
 
-        return self.return_type()
+        return self.return_type
 
     def __repr__(self):
         return self.name + '()'
+
+    def __str__(self):
+        return self.name
 
 
 def add_to_type_map(type_map):
@@ -53,8 +63,8 @@ def add_to_type_map(type_map):
         ('id', [Any], Int),
         ('input', [], Str),
         # TODO actually with prompt: ('input', [Optional(Str)], Str),
-        ('isinstance', [Any, Class], Bool),
-        ('issubclass', [Class, Class], Bool),
+        # ('isinstance', [Any(), Class()], Bool),
+        # ('issubclass', [Class(), Class()], Bool),
         # 'iter' should be converted to __iter__ or handled specially
         #    no support for iter-with-sentinel?
         # 'len' Should have been converted to __len__

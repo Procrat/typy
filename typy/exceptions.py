@@ -19,7 +19,7 @@ class NoSuchName(CheckError):
 class NoSuchAttribute(CheckError):
     def __init__(self, type_, attribute):
         template = '{} has no attribute {}'
-        self.msg = template.format(type_.__class__.__name__, attribute)
+        self.msg = template.format(type_, attribute)
 
 
 class WrongBuiltinArgument(CheckError):
@@ -36,23 +36,23 @@ class WrongArgumentsLength(CheckError):
 
 class NotCallable(CheckError):
     def __init__(self, value):
-        template = '{} object is not callable'
-        self.msg = template.format(value.__class__.__name__)
+        template = '{} is not callable'
+        self.msg = template.format(value)
 
 
 class InvalidAssignmentTarget(CheckError):
     def __init__(self, target):
         template = "can't assign to {}"
-        self.msg = template.format(target.__class__.__name__)
+        self.msg = template.format(target)
 
 
 class NotIterable(CheckError):
     def __init__(self, non_iterable):
         template = 'object {} is not iterable'
-        self.msg = template.format(non_iterable.__class__.__name__)
+        self.msg = template.format(non_iterable)
 
 
 class CantSetBuiltinAttribute(CheckError):
     def __init__(self, builtin_type):
         template = "can't set attributes of built-in/extension type {}"
-        self.msg = template.format(builtin_type.__class__.__name__)
+        self.msg = template.format(builtin_type)

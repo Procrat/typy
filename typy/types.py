@@ -31,13 +31,11 @@ class Type:
         # TODO check for existence of __call__ and call check_call on it
         raise NotCallable(self)
 
-    @classmethod
-    def istypeof(cls, object_):
-        if isinstance(object_, cls):
+    def istypeof(self, object_):
+        if self.__class__ == object_.__class__:
             return True
 
-        # TODO check if args has all attributes of type
-        raise NotYetSupported('istypeof call to', cls())
+        raise NotYetSupported('istypeof call to', self)
 
 
 class Function(Type):
@@ -102,7 +100,7 @@ class Class(Type):
 
 
 class Instance(Type):
-    def __init__(self, class_, type_map):
+    def __init__(self, class_, type_map=None):
         super().__init__(type_map)
         self.class_ = class_
 
@@ -118,9 +116,22 @@ class Instance(Type):
             class_attr = self.class_.get_attribute(name)
             if isinstance(class_attr, Function):
                 return Method(self.type_map, self, class_attr)
+            else:
+                return class_attr
+
+    def istypeof(self, object_):
+        if not isinstance(object_, Instance):
+            return False
+        return self.class_.istypeof(object_.class_)
+
+    def check(self):
+        return self
 
     def __repr__(self):
         return repr(self.class_) + '()'
+
+    def __str__(self):
+        return '{} object'.format(self.class_)
 
 
 class Method(Type):
@@ -151,28 +162,29 @@ class Tuple(Type):
         return '(' + ', '.join(repr(el) for el in self.elements) + ')'
 
 
-# class Intersection(Type):
-#     def __init__(self, type_map, *types):
-#         super().__init__(type_map)
-#         self.types = [t() for t in types]
+class Intersection(Type):
+    def __init__(self, type_map, *types):
+        super().__init__(type_map)
+        self.types = types
 
-#     def call_magic_method(self, name, args):
-#         return_types = []
-#         for type_ in self.types:
-#             return_types.append(type_.call_magic_method(name, args))
-#         return Intersection(return_types)
+    def call_magic_method(self, name, args):
+        return_types = [type_.call_magic_method(name, args)
+                        for type_ in self.types]
+        return Intersection(return_types)
 
-#     def check_call(self, args):
-#         return_types = []
-#         for type_ in self.types:
-#             return_types.append(type_.call_magic_method(name, args))
-#         return Intersection(return_types)
+    def check_call(self, args):
+        return_types = [type_.check_call(args) for type_ in self.types]
+        return Intersection(return_types)
 
-#     def get_attribute(self, name):
-#         return super().get_attribute(name)
+    def get_attribute(self, name):
+        attribute_types = [type_.get_attribute(name) for type_ in self.types]
+        return Intersection(attribute_types)
 
-#         # TODO Zoek var/meth in supertypes
-#         # TODO Zoek in std class vars/meths
+    def istypeof(self, object_):
+        return all(type_.istypeof(object_) for type_ in self.types)
 
-#     def __repr__(self):
-#         return '(' + ' | '.join(repr(t) for t in self.types) + ')'
+    def __call__(self, *args, **kwargs):
+        return self
+
+    def __repr__(self):
+        return '(' + ' | '.join(repr(t) for t in self.types) + ')'
