@@ -135,28 +135,37 @@ class Method(Type):
         return repr(self.object_) + '.' + self.name + '()'
 
 
-class Intersection(Type):
-    def __init__(self, type_map, *types):
+class Tuple(Type):
+    def __init__(self, type_map, *elements):
         super().__init__(type_map)
-        self.types = [t() for t in types]
-
-    def call_magic_method(self, name, args):
-        return_types = []
-        for type_ in self.types:
-            return_types.append(type_.call_magic_method(name, args))
-        return Intersection(return_types)
-
-    def check_call(self, args):
-        return_types = []
-        for type_ in self.types:
-            return_types.append(type_.call_magic_method(name, args))
-        return Intersection(return_types)
-
-    def get_attribute(self, name):
-        return super().get_attribute(name)
-
-        # TODO Zoek var/meth in supertypes
-        # TODO Zoek in std class vars/meths
+        self.elements = elements
 
     def __repr__(self):
-        return '(' + ' | '.join(repr(t) for t in self.types) + ')'
+        return '(' + ', '.join(repr(el) for el in self.elements) + ')'
+
+
+# class Intersection(Type):
+    # def __init__(self, type_map, *types):
+        # super().__init__(type_map)
+        # self.types = [t() for t in types]
+
+    # def call_magic_method(self, name, args):
+        # return_types = []
+        # for type_ in self.types:
+            # return_types.append(type_.call_magic_method(name, args))
+        # return Intersection(return_types)
+
+    # def check_call(self, args):
+        # return_types = []
+        # for type_ in self.types:
+            # return_types.append(type_.call_magic_method(name, args))
+        # return Intersection(return_types)
+
+    # def get_attribute(self, name):
+        # return super().get_attribute(name)
+
+        # # TODO Zoek var/meth in supertypes
+        # # TODO Zoek in std class vars/meths
+
+    # def __repr__(self):
+        # return '(' + ' | '.join(repr(t) for t in self.types) + ')'

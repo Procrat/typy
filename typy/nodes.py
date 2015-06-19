@@ -425,6 +425,7 @@ class Continue(Node):
 
 class Num(Node):
     def __init__(self, type_map, ast_node):
+        super().__init__(type_map, ast_node)
         self.number_type = {
             int: data_types.Int,
             # float: data_types.Float,
@@ -434,6 +435,28 @@ class Num(Node):
     def check(self):
         debug('checking num')
         return self.number_type()
+
+
+class Tuple(Node):
+    def __init__(self, type_map, ast_node):
+        super().__init__(type_map, ast_node)
+        self.elts = [convert(type_map, el) for el in ast_node.elts]
+        self.ctx = ast_node.ctx
+
+    def check(self):
+        debug('checking tuple %r', self)
+
+        if isinstance(self.ctx, ast.Load):
+            el_types = (el.check() for el in self.elts)
+            return data_types.Tuple(self.type_map, *el_types)
+        elif isinstance(self.ctx, ast.Store):
+            return self
+        else:
+            # TODO implement for Del, AugLoad, AugStore, Param
+            raise NotYetSupported('name context', self.ctx)
+
+    def __repr__(self):
+        return '(' + ', '.join(repr(el) for el in self.elts) + ')'
 
 
 def _assign(target, value, type_map):
