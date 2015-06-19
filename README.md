@@ -23,18 +23,20 @@ All tests can be run with `py.test`.
 
 Install `pytest` if need be: `pip install pytest`
 
-## (Somewhat) supported handling of language features
+## (Somewhat) supported features
 - Function/method parameter type checking
 - Function/method return type checking
 - Replacement of builtin operators to magic method calls
   - numeric operators
   - bit operators
   - comparison operators
-- Expressions: attributes, calls, builtin function calls, names, comparisons,
-  comparison chaining, name constants, control flow statements
-- Statements: function definitions, return, class definitions, assignments
-- Closures
-- A limited set builtin types and their attributes (integers, booleans, tuples)
+- Handled expressions: attributes, calls, builtin function calls, names,
+  comparisons, comparison chaining, name constants, control flow statements
+- Handled statements: function definitions, return, class definitions,
+  assignments
+- Handling of closures
+- Checking a limited set builtin types and their attributes (integers, booleans, tuples)
+- Checking whether a name gets bound to different types
 
 ## Will soon be supported
 - All attributes of all builtin types
@@ -48,7 +50,6 @@ Install `pytest` if need be: `pip install pytest`
     - Needed for: a lot of builtin functions
 - Replacement of some builtin functions to magic methods (len, next, iter ...)
 - Comparison operators: Is, IsNot
-- First class functions / classes
 
 ## Not supported (yet)
 - Inheritance
