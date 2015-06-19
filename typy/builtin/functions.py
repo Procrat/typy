@@ -51,7 +51,8 @@ def add_to_type_map(type_map):
         # 'hash' should be converted to __hash__
         ('hex', [Int], Str),
         ('id', [Any], Int),
-        # ('input', [Optional(Str)], Str),
+        ('input', [], Str),
+        # TODO actually with prompt: ('input', [Optional(Str)], Str),
         ('isinstance', [Any, Class], Bool),
         ('issubclass', [Class, Class], Bool),
         # 'iter' should be converted to __iter__ or handled specially
