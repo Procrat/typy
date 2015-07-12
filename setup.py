@@ -36,7 +36,7 @@ setup(
         'Topic :: Software Development :: Testing',
     ],
     keywords='type checking testing development',
-    packages=['typy'],
+    packages=['typy', 'typy.builtin'],
     entry_points={
         'console_scripts': [
             'typy=typy:main',
