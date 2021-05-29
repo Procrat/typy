@@ -50,10 +50,12 @@ Install `pytest` if need be: `pip install pytest`
     - Needed for: a lot of builtin functions
 - Replacement of some builtin functions to magic methods (len, next, iter ...)
 - Comparison operators: Is, IsNot
+- Global/built-in functions
 
 ## Not supported (yet)
 - Inheritance
 - Default arguments
+- Varargs
 - Keyword arguments
 - Line number mentioning for errors
 - Checking of function definitions which are not explicitly called
@@ -76,6 +78,7 @@ Install `pytest` if need be: `pip install pytest`
 - Constant folding
 - Descriptor protocol
 - getattr / hasattr / setattr
+- Decorators
 - A lot of magic methods
 - Other uncommon dynamic Python magic
 
